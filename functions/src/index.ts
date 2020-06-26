@@ -54,7 +54,7 @@ function getBuildMessage({
 			attachments: [
 				{
 					mrkdwn_in: ["pretext", "text"],
-					color: "#17BC29",
+					color: getDeployColor(state),
 					pretext: `Succesful deploy of *${branch}*`,
 					title: `Visit the changes live`,
 					title_link: deploy_ssl_url,
@@ -69,3 +69,10 @@ function getBuildMessage({
 	return { text: `Build state ${state}` };
 };
 
+function getDeployColor(state: DeployState) {
+  switch (state) {
+    case 'building': return Colors.Progress
+    case 'ready': return Colors.Success
+    case 'error' : return Colors.Error
+  }
+};
