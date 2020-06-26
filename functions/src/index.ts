@@ -1,6 +1,7 @@
 import * as functions from "firebase-functions";
 import fetch from 'node-fetch';
-import { SLACK_WEBHOOK_URL, Colors, Titles } from "./consts";
+import { Colors, Titles } from "./consts";
+import { config } from "./config";
 
 export const notifyTalenoteSlack = functions.https.onRequest(
 	(request, response) => {
@@ -14,7 +15,7 @@ export const notifyTalenoteSlack = functions.https.onRequest(
 
   const body = JSON.stringify(slackMessageToSend);
 
-  fetch(SLACK_WEBHOOK_URL, {
+  fetch(config.slackWebhookUrl, {
     body,
     method: 'POST'
   })
@@ -35,7 +36,7 @@ function getBuildMessage({
 	published_at,
 	admin_url,
 	state,
-	summary: { messages },
+	error_message,
 }: {
 	id: string;
 	deploy_ssl_url: string;
@@ -43,10 +44,7 @@ function getBuildMessage({
 	published_at: string;
 	admin_url: string;
 	state: DeployState;
-	summary: {
-		status: DeployState;
-		messages: BuildMessage[];
-	};
+	error_message?: string;
 }) {
 	if (!deploy_ssl_url) {
 		return;
@@ -54,24 +52,23 @@ function getBuildMessage({
 
 	const buildLogUrl = `${admin_url}/deploys/${id}`;
 
-  return {
-    attachments: [
-      {
-        mrkdwn_in: ["pretext", "text"],
-        color: getDeployColor(state),
-        pretext: `${getDeployTitle(state)} *${branch}*`,
-        title:
-          state === "ready"
-            ? `Visit the changes live`
-            : `Visit the build log`,
-        title_link:
-          state === "ready" ? deploy_ssl_url : buildLogUrl,
-        text: getDeployText(state, buildLogUrl, messages),
-        footer: `Using git branch ${branch}`,
-        ts: new Date(published_at).getTime(),
-      },
-    ],
-  };
+	return {
+		text: `${getDeployTitle(state)} *${branch}*`,
+		attachments: [
+			{
+				mrkdwn_in: ["text"],
+				color: getDeployColor(state),
+				title:
+					state === "ready"
+						? `Visit the changes live`
+						: `Visit the build log`,
+				title_link: state === "ready" ? deploy_ssl_url : buildLogUrl,
+				text: getDeployText(state, buildLogUrl, error_message),
+				footer: `Using git branch ${branch}`,
+				ts: new Date(published_at).getTime(),
+			},
+		],
+	};
 };
 
 function getDeployColor(state: DeployState) {
@@ -90,22 +87,13 @@ function getDeployTitle(state: DeployState) {
   }
 };
 
-function getDeployText(state: DeployState, buildLogUrl: string, messages: BuildMessage[]) {
+function getDeployText(state: DeployState, buildLogUrl: string, error_message?: string) {
 	switch (state) {
 		case "building":
 			return undefined;
 		case "ready":
 			return `Or check out the <${buildLogUrl}|build log>`;
-		case "error": {
-      const [firstMessage] = messages;
-      return `The last message we got from the build was \`${firstMessage.title}\``;
-    }
+		case "error":
+			return `The last message we got from the build was \`${error_message || ''}\``;
 	}
 };
-
-type BuildMessage = {
-  type: string,
-  title: string,
-  description: string;
-  details: string | null;
-}
