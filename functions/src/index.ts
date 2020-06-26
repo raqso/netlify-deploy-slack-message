@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions";
 import fetch from 'node-fetch';
-import { SLACK_WEBHOOK_URL, Colors } from "./consts";
+import { SLACK_WEBHOOK_URL, Colors, Titles } from "./consts";
 
 export const notifyTalenoteSlack = functions.https.onRequest(
 	(request, response) => {
@@ -35,6 +35,7 @@ function getBuildMessage({
 	published_at,
 	admin_url,
 	state,
+	summary: { messages },
 }: {
 	id: string;
 	deploy_ssl_url: string;
@@ -42,6 +43,10 @@ function getBuildMessage({
 	published_at: string;
 	admin_url: string;
 	state: DeployState;
+	summary: {
+		status: DeployState;
+		messages: BuildMessage[];
+	};
 }) {
 	if (!deploy_ssl_url) {
 		return;
@@ -49,24 +54,24 @@ function getBuildMessage({
 
 	const buildLogUrl = `${admin_url}/deploys/${id}`;
 
-	if (state === "ready") {
-		return {
-			attachments: [
-				{
-					mrkdwn_in: ["pretext", "text"],
-					color: getDeployColor(state),
-					pretext: `Succesful deploy of *${branch}*`,
-					title: `Visit the changes live`,
-					title_link: deploy_ssl_url,
-					text: `Or check out the <${buildLogUrl}|build log>`,
-					footer: `Using git branch ${branch}`,
-					ts: new Date(published_at).getTime(),
-				},
-			],
-		};
-	}
-
-	return { text: `Build state ${state}` };
+  return {
+    attachments: [
+      {
+        mrkdwn_in: ["pretext", "text"],
+        color: getDeployColor(state),
+        pretext: `${getDeployTitle(state)} *${branch}*`,
+        title:
+          state === "ready"
+            ? `Visit the changes live`
+            : `Visit the build log`,
+        title_link:
+          state === "ready" ? deploy_ssl_url : buildLogUrl,
+        text: getDeployText(state, buildLogUrl, messages),
+        footer: `Using git branch ${branch}`,
+        ts: new Date(published_at).getTime(),
+      },
+    ],
+  };
 };
 
 function getDeployColor(state: DeployState) {
@@ -76,3 +81,31 @@ function getDeployColor(state: DeployState) {
     case 'error' : return Colors.Error
   }
 };
+
+function getDeployTitle(state: DeployState) {
+  switch (state) {
+    case 'building': return Titles.Progress
+    case 'ready': return Titles.Success;
+    case 'error' : return Titles.Error;
+  }
+};
+
+function getDeployText(state: DeployState, buildLogUrl: string, messages: BuildMessage[]) {
+	switch (state) {
+		case "building":
+			return undefined;
+		case "ready":
+			return `Or check out the <${buildLogUrl}|build log>`;
+		case "error": {
+      const [firstMessage] = messages;
+      return `The last message we got from the build was \`${firstMessage.title}\``;
+    }
+	}
+};
+
+type BuildMessage = {
+  type: string,
+  title: string,
+  description: string;
+  details: string | null;
+}
