@@ -1,15 +1,18 @@
 # Netlify deploy slack notification
 
-## Get your slack webhook URL
+![image](https://user-images.githubusercontent.com/13930984/92312591-7d1d7d80-efc2-11ea-8a2a-879300fd54a4.png)
 
-From Slack [documentation](https://slack.com/intl/en-pl/help/articles/115005265063-Incoming-webhooks-for-Slack):
+## How to setup
+### Get your slack webhook URL
+
+According to Slack [documentation](https://slack.com/intl/en-pl/help/articles/115005265063-Incoming-webhooks-for-Slack):
 > 1. [Create a new Slack app](https://api.slack.com/apps?new_app=1) in the workspace where you want to post messages.
 > 2. From the Features page, toggle Activate Incoming Webhooks on.
 > 3. Click Add New Webhook to Workspace.
 > 4. Pick a channel that the app will post to, then click Authorize.
 > 5. Use your [Incoming Webhook URL](https://api.slack.com/incoming-webhooks#posting_with_webhooks) to post a message to Slack. 
 
-## Deploy to Heroku
+### Deploy to Heroku
 
 ```
 $ heroku create
@@ -20,7 +23,7 @@ or
 
 [![Deploy to Heroku](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
-## Set up deploy notification in [Netlify](https://netlify.com)
+### Set up deploy notification in [Netlify](https://netlify.com)
 
 1. Go to your project netlify dashbord, then 'Deploys' >> 'Notifications'.
 2. Click 'Add notification' and 'Outgoing webhook'.
