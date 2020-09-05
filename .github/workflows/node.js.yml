@@ -25,6 +25,8 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm install
-      working-directory: functions
+    - run: npm run lint
     - run: npm run build
-      working-directory: functions
+      env:
+        SLACK_WEBHOOK_URL: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX
+        URL_TOKEN: 50d45bd4-32b3-4bb3-8d3e-61e2108b231c

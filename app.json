@@ -1,0 +1,17 @@
+{
+    "buildpacks": [
+        {
+          "url": "heroku/nodejs"
+        }
+    ],
+    "env": {
+        "SLACK_WEBHOOK_URL": {
+            "required": true,
+            "description": "Slack's webhook for sending deploy messages."
+        },
+        "URL_TOKEN": {
+            "description": "Secret URL suffix under your webhook will be available.",
+            "required": true
+        }
+    }
+}
