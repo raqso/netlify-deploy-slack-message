@@ -1,0 +1,7 @@
+{
+    "env": {
+        "SLACK_WEBHOOK_URL": {
+            "required": true
+        }
+        }
+}
