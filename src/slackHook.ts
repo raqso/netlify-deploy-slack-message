@@ -14,6 +14,7 @@ export const slackHook = (request: Request, response: Response) => {
 
   const body = JSON.stringify(slackMessageToSend);
 
+  //@TODO Add retrying on error
   fetch(config.slackWebhookUrl, {
     body,
     method: 'POST'
