@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/index.ts",
   "scripts": {
-    "start": "ts-node src/server.ts -P functions/tsconfig.json",
+    "start": "ts-node src/server.ts",
+    "build": "tsc",
     "dev": "nodemon -x ts-node src/server.ts"
   },
   "repository": {
