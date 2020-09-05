@@ -1,7 +1,12 @@
 {
+    "buildpacks": [
+        {
+          "url": "heroku/nodejs"
+        }
+    ],
     "env": {
         "SLACK_WEBHOOK_URL": {
             "required": true
         }
-        }
+    }
 }
