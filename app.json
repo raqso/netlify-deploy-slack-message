@@ -11,8 +11,7 @@
         },
         "URL_TOKEN": {
             "description": "Secret URL suffix under your webhook will be available.",
-            "required": true,
-            "generator": "secret"
+            "required": true
         }
     }
 }
