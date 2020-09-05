@@ -6,10 +6,13 @@
     ],
     "env": {
         "SLACK_WEBHOOK_URL": {
-            "required": true
+            "required": true,
+            "description": "Slack's webhook for sending deploy messages."
         },
         "URL_TOKEN": {
-            "required": true
+            "description": "Secret URL suffix under your webhook will be available.",
+            "required": true,
+            "generator": "secret"
         }
     }
 }
